@@ -1237,7 +1237,178 @@ namespace AdventOfCode2020
             return answerSum;
         }
 
+        public int CalculateDay19Task1(List<string> inputList)
+        {
+            List<string> messages;
+            Dictionary<int, string> rules;
+            ReadData(inputList, out messages, out rules);
+
+            int matchingMessages = 0;
+
+            foreach (string message in messages)
+            {
+                int index = MatchTheRule(ref rules, message, 0, 0);
+                matchingMessages += message.Count() == index ? 1 : 0;
+            }
+
+            return matchingMessages;
+        }
+
+        public int CalculateDay19Task2(List<string> inputList)
+        {
+            List<string> messages;
+            Dictionary<int, string> rules;
+            ReadData(inputList, out messages, out rules);
+
+            List<string> rule42 = GenerateRulePresets(ref rules, 42);
+            List<string> rule31 = GenerateRulePresets(ref rules, 31);
+
+            int matchingMessages = 0;
+
+            foreach (string message in messages)
+            {
+                if (message.Length % rule42[0].Length == 0)
+                {
+                    int count = message.Length / rule42[0].Length;
+
+                    int passed42Segments = 0;
+                    int passed31Segments = 0;
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (rule42.Contains(message.Substring(i * rule42[0].Length, rule42[0].Length)))
+                        {
+                            passed42Segments = passed31Segments == 0 ? passed42Segments + 1 : 0;
+                        }
+                        else if (rule31.Contains(message.Substring(i * rule31[0].Length, rule31[0].Length)))
+                        {
+                            passed31Segments++;
+                        }
+                    }
+                    if (passed42Segments > passed31Segments && passed31Segments > 0)
+                    {
+                        matchingMessages++;
+                    }
+                }  
+            }
+
+            return matchingMessages;
+        }
+
         //---------------------------------------------------------------------------------------------------------------------
+
+        private void ReadData(List<string> inputList, out List<string> messages, out Dictionary<int, string> rules)
+        {
+            messages = new List<string>();
+            rules = new Dictionary<int, string>();
+            bool separatorReached = false;
+            foreach (string item in inputList)
+            {
+                if (item == "")
+                {
+                    separatorReached = true;
+                }
+                else
+                {
+                    if (!separatorReached)
+                    {
+                        int index = int.Parse(item.Substring(0, item.IndexOf(':')));
+                        string values = item.Substring(item.IndexOf(':') + 2);
+
+                        rules.Add(index, values);
+                    }
+                    else
+                    {
+                        messages.Add(item);
+                    }
+                }
+            }
+        }
+
+        private List<string> GenerateRulePresets(ref Dictionary<int, string> rules, int ruleIndex)
+        {
+            if (rules[ruleIndex].Contains('"'))
+            {
+                List<string> newList = new List<string>();
+                newList.Add(rules[ruleIndex].Substring(1,1));
+                return newList;
+            }
+            else
+            {
+                string[] ruleset = rules[ruleIndex].Split(" | ");
+                List<string> finalList = new List<string>();
+
+                foreach (string item in ruleset)
+                {
+                    int[] newRuleIdexes = Array.ConvertAll(item.Split(' '), s => int.Parse(s));
+                    List<string> newList = new List<string>();
+
+
+                    foreach (int index in newRuleIdexes)
+                    {
+                        List<string> newAditionList = GenerateRulePresets(ref rules, index);
+
+                        if (newList.Count == 0)
+                        {
+                            newList = newAditionList;
+                        }
+                        else
+                        {
+                            List<string> combinedList = new List<string>();
+                            foreach (string oldValue in newList)
+                            {
+                                foreach (string newValue in newAditionList)
+                                {
+                                    combinedList.Add(oldValue + newValue);
+                                }
+                            }
+                            newList = combinedList;
+                        }
+                    }
+                    finalList.AddRange(newList);
+                }
+                return finalList;
+            }
+        }
+
+        private int MatchTheRule(ref Dictionary<int, string> rules, string message, int ruleIndex, int messageIndex)
+        {
+            if (rules[ruleIndex].Contains('"'))
+            {
+                char letter = rules[ruleIndex].Substring(1)[0];
+                if (message.Length > messageIndex)
+                {
+                    return message[messageIndex] == letter ? ++messageIndex : -1;
+                }
+                return -1;
+            }
+            else
+            {
+                string[] ruleset = rules[ruleIndex].Split(" | ");
+
+                int isMatch = -1;
+                foreach (string item in ruleset)
+                {
+                    int[] newRuleIdexes = Array.ConvertAll(item.Split(' '), s => int.Parse(s));
+
+                    int correctRules = 0;
+                    int newMessageIndex = messageIndex;
+
+                    foreach (int index in newRuleIdexes)
+                    {
+                        if (newMessageIndex >= 0)
+                        {
+                            newMessageIndex = MatchTheRule(ref rules, message, index, newMessageIndex);
+                            correctRules += newMessageIndex >= 0 ? 1 : 0;
+
+
+                        }
+                        isMatch = correctRules == newRuleIdexes.Length ? newMessageIndex : isMatch;
+                    }
+                }
+                return isMatch;
+            }
+        }
+
         private long GetOperationValue(string line)
         {
             long value = 0;
