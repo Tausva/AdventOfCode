@@ -22,6 +22,7 @@ namespace AdventOfCode2020
             {
                 float answer = -1;
                 long longAnswer = -1;
+                string stringAnswer = "";
 
                 List<int> inputIntList;
                 List<string> inputStringList;
@@ -307,6 +308,36 @@ namespace AdventOfCode2020
                         answer = logicModule.CalculateDay19Task2(inputStringList);
 
                         Console.WriteLine("Day 19 second task answer: " + answer);
+                        break;
+
+                    case 39:
+                        inputStringList = iOManager.ReadStringList("Day20.txt");
+                        longAnswer = logicModule.CalculateDay20Task1(inputStringList);
+                        
+                        format = "0000000000";
+
+                        Console.WriteLine("Day 20 first task answer: " + longAnswer.ToString(format));
+                        break;
+
+                    case 40:
+                        inputStringList = iOManager.ReadStringList("Day20.txt");
+                        answer = logicModule.CalculateDay20Task2(inputStringList);
+
+                        Console.WriteLine("Day 20 second task answer: " + answer);
+                        break;
+
+                    case 41:
+                        inputStringList = iOManager.ReadStringList("Day21.txt");
+                        answer = logicModule.CalculateDay21Task1(inputStringList);
+
+                        Console.WriteLine("Day 21 first task answer: " + answer);
+                        break;
+
+                    case 42:
+                        inputStringList = iOManager.ReadStringList("Day21.txt");
+                        stringAnswer = logicModule.CalculateDay21Task2(inputStringList);
+
+                        Console.WriteLine("Day 21 second task answer: [" + stringAnswer + "]");
                         break;
 
                     default:

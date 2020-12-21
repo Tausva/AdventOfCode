@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
+using AdventOfCode2020.Structures;
 
 namespace AdventOfCode2020
 {
@@ -450,12 +451,12 @@ namespace AdventOfCode2020
             return combinationCount[combinationCount.Count - 1];
         }
 
-        public int CalculateDay11Task1(List<string> inputStringList)
+        public int CalculateDay11Task1(List<string> inputList)
         {
-            char[][] input = new char[inputStringList.Count][];
-            for (int i = 0; i < inputStringList.Count; i++)
+            char[][] input = new char[inputList.Count][];
+            for (int i = 0; i < inputList.Count; i++)
             {
-                input[i] = inputStringList[i].ToCharArray();
+                input[i] = inputList[i].ToCharArray();
             }
 
             int changeAmount = 0;
@@ -503,12 +504,12 @@ namespace AdventOfCode2020
             return ocupiedSeatsCount;
         }
 
-        public int CalculateDay11Task2(List<string> inputStringList)
+        public int CalculateDay11Task2(List<string> inputList)
         {
-            char[][] input = new char[inputStringList.Count][];
-            for (int i = 0; i < inputStringList.Count; i++)
+            char[][] input = new char[inputList.Count][];
+            for (int i = 0; i < inputList.Count; i++)
             {
-                input[i] = inputStringList[i].ToCharArray();
+                input[i] = inputList[i].ToCharArray();
             }
 
             int changeAmount = 0;
@@ -1293,6 +1294,328 @@ namespace AdventOfCode2020
 
             return matchingMessages;
         }
+
+        public long CalculateDay20Task1(List<string> inputList)
+        {
+            List<PictureTile> tileList = new List<PictureTile>();
+
+            PictureTile newTile;
+            int tileId = 0;
+            List<char[]> tileData = default;
+            foreach (string input in inputList)
+            {
+                if (input.Contains("Tile"))
+                {
+                    tileId = int.Parse(input.Substring(input.IndexOf(' '), input.IndexOf(':') - input.IndexOf(' ')));
+                    tileData = new List<char[]>();
+                }
+                else if (input == "")
+                {
+                    newTile = new PictureTile(tileId, tileData.ToArray());
+                    tileList.Add(newTile);
+                }
+                else
+                {
+                    tileData.Add(input.ToCharArray());
+                }
+            }
+            newTile = new PictureTile(tileId, tileData.ToArray());
+            tileList.Add(newTile);
+
+            long answer = 1;
+            for (int i = 0; i < tileList.Count; i++)
+            {
+                int count = 0;
+                for (int j = 0; j < tileList.Count; j++)
+                {
+                    if (i != j && tileList[j].HasMachingBorder(tileList[i].BorderArray, tileList[i].Id))
+                    {
+                        count++;
+                    }
+                }
+
+                if (count == 2)
+                {
+                    answer *= tileList[i].Id;
+                }
+            }
+            return answer;
+        }
+
+        public int CalculateDay20Task2(List<string> inputList)
+        {
+            Dictionary<int, PictureTile> tileList = new Dictionary<int, PictureTile>();
+
+            PictureTile newTile;
+            int tileId = 0;
+            List<char[]> tileData = default;
+            foreach (string input in inputList)
+            {
+                if (input.Contains("Tile"))
+                {
+                    tileId = int.Parse(input.Substring(input.IndexOf(' '), input.IndexOf(':') - input.IndexOf(' ')));
+                    tileData = new List<char[]>();
+                }
+                else if (input == "")
+                {
+                    newTile = new PictureTile(tileId, tileData.ToArray());
+                    tileList.Add(tileId, newTile);
+                }
+                else
+                {
+                    tileData.Add(input.ToCharArray());
+                }
+            }
+            newTile = new PictureTile(tileId, tileData.ToArray());
+            tileList.Add(tileId, newTile);
+
+            for (int i = 0; i < tileList.Count; i++)
+            {
+                for (int j = 0; j < tileList.Count; j++)
+                {
+                    if (i != j)
+                    {
+                        tileList.ElementAt(j).Value.HasMachingBorder(tileList.ElementAt(i).Value.BorderArray, tileList.ElementAt(i).Value.Id);
+                    }
+                }
+            }
+
+            int lenght = (int)Math.Sqrt(tileList.Count);
+            int pictureSize = lenght * (tileList.ElementAt(0).Value.BorderArray[0].Length - 2);
+            char[,] picture = new char[pictureSize, pictureSize];
+
+            Dictionary<int, PictureTile> tile2List = new Dictionary<int, PictureTile>();
+            Dictionary<int, PictureTile> tile3List = new Dictionary<int, PictureTile>();
+            Dictionary<int, PictureTile> tile4List = new Dictionary<int, PictureTile>();
+            for (int i = 0; i < tileList.Count; i++)
+            {
+                int count = tileList.ElementAt(i).Value.BorderingTiles.Count;
+                if (count == 4)
+                {
+                    tile4List.Add(tileList.ElementAt(i).Key, tileList.ElementAt(i).Value);
+                }
+                else if (count == 3)
+                {
+                    tile3List.Add(tileList.ElementAt(i).Key, tileList.ElementAt(i).Value);
+                }
+                else
+                {
+                    tile2List.Add(tileList.ElementAt(i).Key, tileList.ElementAt(i).Value);
+                }
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < tile3List.Count; j++)
+                {
+
+                }
+            }
+            
+
+                return -1;// answer;
+        }
+
+        public int CalculateDay21Task1(List<string> inputList)
+        {
+            List<List<string>> ingrediants = new List<List<string>>();
+            List<List<string>> alergens = new List<List<string>>();
+            HashSet<string> uniqueAlergens = new HashSet<string>();
+
+            foreach (string input in inputList)
+            {
+                string[] inputSlice = input.Split('(');
+                ingrediants.Add(inputSlice[0].Split(' ').ToList());
+                ingrediants[ingrediants.Count - 1].RemoveAt(ingrediants[ingrediants.Count - 1].Count - 1);
+                string alergensString = inputSlice[1].Substring(9, inputSlice[1].Length - 10);
+                alergensString = alergensString.Replace(",", null);
+                alergens.Add(alergensString.Split(' ').ToList());
+            }
+
+            foreach (List<string> itemList in alergens)
+            {
+                foreach (string item in itemList)
+                {
+                    if (!uniqueAlergens.Contains(item))
+                    {
+                        uniqueAlergens.Add(item);
+                    }
+                }
+            }
+
+            Dictionary<string, List<string>> potentialProducts = new Dictionary<string, List<string>>();
+            foreach (string alergen in uniqueAlergens)
+            {
+                int ingrediantsAmount = 0;
+                Dictionary<string, int> potentialAlergens = new Dictionary<string, int>();
+                for (int i = 0; i < alergens.Count; i++)
+                {
+                    bool containAlergen = false;
+                    for (int j = 0; j < alergens[i].Count; j++)
+                    {
+                        if (alergen == alergens[i][j])
+                        {
+                            containAlergen = true;
+                        }
+                    }
+
+                    if (containAlergen)
+                    {
+                        ingrediantsAmount++;
+                        for (int j = 0; j < ingrediants[i].Count; j++)
+                        {
+                            if (potentialAlergens.ContainsKey(ingrediants[i][j]))
+                            {
+                                potentialAlergens[ingrediants[i][j]]++;
+                            }
+                            else
+                            {
+                                potentialAlergens.Add(ingrediants[i][j], 1);
+                            }
+                        }
+                    }
+                }
+                List<string> products = new List<string>();
+                foreach (KeyValuePair<string, int> product in potentialAlergens)
+                {
+                    if (ingrediantsAmount == product.Value)
+                    {
+                        products.Add(product.Key);
+                    }
+                }
+                potentialProducts.Add(alergen, products);
+            }
+
+            List<string> alergicProducts = new List<string>();
+            int loopAmount = potentialProducts.Count;
+            for (int i = 0; i < loopAmount; i++)
+            {
+                for (int j = 0; j < potentialProducts.Count; j++)
+                {
+                    if (potentialProducts.ElementAt(j).Value.Count == 1)
+                    {
+                        string newProduct = potentialProducts.ElementAt(j).Value[0];
+                        alergicProducts.Add(newProduct);
+
+                        for (int l = 0; l < potentialProducts.Count; l++)
+                        {
+                            potentialProducts.ElementAt(l).Value.Remove(newProduct);
+                        }
+                    }
+                }
+            }
+
+            int answer = 0;
+            foreach (List<string> itemList in ingrediants)
+            {
+                foreach (string item in itemList)
+                {
+                    answer += !alergicProducts.Contains(item) ? 1 : 0;
+                }
+            }
+            return answer;
+        }
+
+        public string CalculateDay21Task2(List<string> inputList)
+        {
+            List<List<string>> ingrediants = new List<List<string>>();
+            List<List<string>> alergens = new List<List<string>>();
+            List<string> uniqueAlergens = new List<string>();
+
+            foreach (string input in inputList)
+            {
+                string[] inputSlice = input.Split('(');
+                ingrediants.Add(inputSlice[0].Split(' ').ToList());
+                ingrediants[ingrediants.Count - 1].RemoveAt(ingrediants[ingrediants.Count - 1].Count - 1);
+                string alergensString = inputSlice[1].Substring(9, inputSlice[1].Length - 10);
+                alergensString = alergensString.Replace(",", null);
+                alergens.Add(alergensString.Split(' ').ToList());
+            }
+
+            foreach (List<string> itemList in alergens)
+            {
+                foreach (string item in itemList)
+                {
+                    if (!uniqueAlergens.Contains(item))
+                    {
+                        uniqueAlergens.Add(item);
+                    }
+                }
+            }
+
+            Dictionary<string, List<string>> potentialProducts = new Dictionary<string, List<string>>();
+            foreach (string alergen in uniqueAlergens)
+            {
+                int ingrediantsAmount = 0;
+                Dictionary<string, int> potentialAlergens = new Dictionary<string, int>();
+                for (int i = 0; i < alergens.Count; i++)
+                {
+                    bool containAlergen = false;
+                    for (int j = 0; j < alergens[i].Count; j++)
+                    {
+                        if (alergen == alergens[i][j])
+                        {
+                            containAlergen = true;
+                        }
+                    }
+
+                    if (containAlergen)
+                    {
+                        ingrediantsAmount++;
+                        for (int j = 0; j < ingrediants[i].Count; j++)
+                        {
+                            if (potentialAlergens.ContainsKey(ingrediants[i][j]))
+                            {
+                                potentialAlergens[ingrediants[i][j]]++;
+                            }
+                            else
+                            {
+                                potentialAlergens.Add(ingrediants[i][j], 1);
+                            }
+                        }
+                    }
+                }
+                List<string> products = new List<string>();
+                foreach (KeyValuePair<string, int> product in potentialAlergens)
+                {
+                    if (ingrediantsAmount == product.Value)
+                    {
+                        products.Add(product.Key);
+                    }
+                }
+                potentialProducts.Add(alergen, products);
+            }
+
+            Dictionary<string, string> alergicProducts = new Dictionary<string, string>();
+            int loopAmount = potentialProducts.Count;
+            for (int i = 0; i < loopAmount; i++)
+            {
+                for (int j = 0; j < potentialProducts.Count; j++)
+                {
+                    if (potentialProducts.ElementAt(j).Value.Count == 1)
+                    {
+                        string newProduct = potentialProducts.ElementAt(j).Value[0];
+                        alergicProducts.Add(potentialProducts.ElementAt(j).Key, newProduct);
+
+                        for (int l = 0; l < potentialProducts.Count; l++)
+                        {
+                            potentialProducts.ElementAt(l).Value.Remove(newProduct);
+                        }
+                    }
+                }
+            }
+
+            uniqueAlergens.Sort();
+
+            string answer = "";
+            foreach (string alergent in uniqueAlergens)
+            {
+                answer += (alergicProducts[alergent] + ",");
+            }
+
+            return answer.Remove(answer.Length - 1);
+        }
+
 
         //---------------------------------------------------------------------------------------------------------------------
 
