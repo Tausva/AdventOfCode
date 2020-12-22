@@ -1418,73 +1418,10 @@ namespace AdventOfCode2020
 
         public int CalculateDay21Task1(List<string> inputList)
         {
-            List<List<string>> ingrediants = new List<List<string>>();
-            List<List<string>> alergens = new List<List<string>>();
-            HashSet<string> uniqueAlergens = new HashSet<string>();
-
-            foreach (string input in inputList)
-            {
-                string[] inputSlice = input.Split('(');
-                ingrediants.Add(inputSlice[0].Split(' ').ToList());
-                ingrediants[ingrediants.Count - 1].RemoveAt(ingrediants[ingrediants.Count - 1].Count - 1);
-                string alergensString = inputSlice[1].Substring(9, inputSlice[1].Length - 10);
-                alergensString = alergensString.Replace(",", null);
-                alergens.Add(alergensString.Split(' ').ToList());
-            }
-
-            foreach (List<string> itemList in alergens)
-            {
-                foreach (string item in itemList)
-                {
-                    if (!uniqueAlergens.Contains(item))
-                    {
-                        uniqueAlergens.Add(item);
-                    }
-                }
-            }
-
-            Dictionary<string, List<string>> potentialProducts = new Dictionary<string, List<string>>();
-            foreach (string alergen in uniqueAlergens)
-            {
-                int ingrediantsAmount = 0;
-                Dictionary<string, int> potentialAlergens = new Dictionary<string, int>();
-                for (int i = 0; i < alergens.Count; i++)
-                {
-                    bool containAlergen = false;
-                    for (int j = 0; j < alergens[i].Count; j++)
-                    {
-                        if (alergen == alergens[i][j])
-                        {
-                            containAlergen = true;
-                        }
-                    }
-
-                    if (containAlergen)
-                    {
-                        ingrediantsAmount++;
-                        for (int j = 0; j < ingrediants[i].Count; j++)
-                        {
-                            if (potentialAlergens.ContainsKey(ingrediants[i][j]))
-                            {
-                                potentialAlergens[ingrediants[i][j]]++;
-                            }
-                            else
-                            {
-                                potentialAlergens.Add(ingrediants[i][j], 1);
-                            }
-                        }
-                    }
-                }
-                List<string> products = new List<string>();
-                foreach (KeyValuePair<string, int> product in potentialAlergens)
-                {
-                    if (ingrediantsAmount == product.Value)
-                    {
-                        products.Add(product.Key);
-                    }
-                }
-                potentialProducts.Add(alergen, products);
-            }
+            List<string> uniqueAlergens;
+            Dictionary<string, List<string>> potentialProducts;
+            List<List<string>> ingrediants;
+            GetProductList(inputList, out uniqueAlergens, out potentialProducts, out ingrediants);
 
             List<string> alergicProducts = new List<string>();
             int loopAmount = potentialProducts.Count;
@@ -1518,10 +1455,180 @@ namespace AdventOfCode2020
 
         public string CalculateDay21Task2(List<string> inputList)
         {
-            List<List<string>> ingrediants = new List<List<string>>();
-            List<List<string>> alergens = new List<List<string>>();
-            List<string> uniqueAlergens = new List<string>();
+            List<string> uniqueAlergens;
+            Dictionary<string, List<string>> potentialProducts;
+            List<List<string>> ingrediants;
+            GetProductList(inputList, out uniqueAlergens, out potentialProducts, out ingrediants);
 
+            Dictionary<string, string> alergicProducts = new Dictionary<string, string>();
+            int loopAmount = potentialProducts.Count;
+            for (int i = 0; i < loopAmount; i++)
+            {
+                for (int j = 0; j < potentialProducts.Count; j++)
+                {
+                    if (potentialProducts.ElementAt(j).Value.Count == 1)
+                    {
+                        string newProduct = potentialProducts.ElementAt(j).Value[0];
+                        alergicProducts.Add(potentialProducts.ElementAt(j).Key, newProduct);
+
+                        for (int l = 0; l < potentialProducts.Count; l++)
+                        {
+                            potentialProducts.ElementAt(l).Value.Remove(newProduct);
+                        }
+                    }
+                }
+            }
+
+            uniqueAlergens.Sort();
+
+            string answer = "";
+            foreach (string alergent in uniqueAlergens)
+            {
+                answer += (alergicProducts[alergent] + ",");
+            }
+
+            return answer.Remove(answer.Length - 1);
+        }
+
+        public int CalculateDay22Task1(List<string> inputList)
+        {
+            Queue<int> player1Hand, player2Hand;
+            GetPlayersHands(inputList, out player1Hand, out player2Hand);
+
+            while (player1Hand.Count != 0 && player2Hand.Count != 0)
+            {
+                int player1Card = player1Hand.Dequeue();
+                int player2Card = player2Hand.Dequeue();
+
+                if (player1Card > player2Card)
+                {
+                    player1Hand.Enqueue(player1Card);
+                    player1Hand.Enqueue(player2Card);
+                }
+                else
+                {
+                    player2Hand.Enqueue(player2Card);
+                    player2Hand.Enqueue(player1Card);
+                }
+            }
+
+            Queue<int> winningHand = player1Hand.Count != 0 ? player1Hand : player2Hand;
+            int score = 0;
+
+            while (winningHand.Count > 0)
+            {
+                score += winningHand.Count * winningHand.Dequeue();
+            }
+
+            return score;
+        }
+
+        public int CalculateDay22Task2(List<string> inputList)
+        {
+            Queue<int> player1Hand, player2Hand;
+            GetPlayersHands(inputList, out player1Hand, out player2Hand);
+            int winner = 0;
+
+            Queue<int> winningHand = PlayCrabRecursionMatch(player1Hand, player2Hand, out winner);
+            
+            int score = 0;
+            Console.WriteLine("winner is player " + winner);
+            
+            while (winningHand.Count > 0)
+            {
+                score += winningHand.Count * winningHand.Dequeue();
+            }
+
+            return score;
+        }
+
+        //---------------------------------------------------------------------------------------------------------------------
+
+        private Queue<int> PlayCrabRecursionMatch(Queue<int> player1Hand, Queue<int> player2Hand, out int winner)
+        {
+            winner = 0;
+            List<string> handCombinations = new List<string>();
+
+            while (player1Hand.Count != 0 && player2Hand.Count != 0)
+            {
+                string playersHandCombo = "";
+                foreach (int card in player1Hand.ToList())
+                {
+                    playersHandCombo += (card + " ");
+                }
+                playersHandCombo += "| ";
+                foreach (int card in player2Hand.ToList())
+                {
+                    playersHandCombo += (card + " ");
+                }
+
+                if (handCombinations.Contains(playersHandCombo))
+                {
+                    winner = 1;
+                    return null;
+                }
+                else
+                {
+                    handCombinations.Add(playersHandCombo);
+                }
+
+                int player1Card = player1Hand.Dequeue();
+                int player2Card = player2Hand.Dequeue();
+
+                if (player1Hand.Count >= player1Card && player2Hand.Count >= player2Card)
+                {
+                    Queue<int> newPlayer1Hand = new Queue<int>(player1Hand.ToList().GetRange(0, player1Card));
+                    Queue<int> newPlayer2Hand = new Queue<int>(player2Hand.ToList().GetRange(0, player2Card));
+
+                    PlayCrabRecursionMatch(newPlayer1Hand, newPlayer2Hand, out winner);
+                }
+                else
+                {
+                    winner = player1Card > player2Card ? 1 : 2;
+                }
+
+                if (winner == 1)
+                {
+                    player1Hand.Enqueue(player1Card);
+                    player1Hand.Enqueue(player2Card);
+                }
+                else
+                {
+                    player2Hand.Enqueue(player2Card);
+                    player2Hand.Enqueue(player1Card);
+                }
+            }
+
+            return player1Hand.Count != 0 ? player1Hand : player2Hand;
+        }
+
+        private void GetPlayersHands(List<string> inputList, out Queue<int> player1Hand, out Queue<int> player2Hand)
+        {
+            player1Hand = new Queue<int>();
+            player2Hand = new Queue<int>();
+            bool isSecondPlayerHand = false;
+            foreach (string input in inputList)
+            {
+                if (input == "")
+                {
+                    isSecondPlayerHand = true;
+                }
+                else if (!isSecondPlayerHand && !input.Contains("Player"))
+                {
+                    player1Hand.Enqueue(int.Parse(input));
+                }
+                else if (!input.Contains("Player"))
+                {
+                    player2Hand.Enqueue(int.Parse(input));
+                }
+            }
+        }
+
+        private void GetProductList(List<string> inputList, out List<string> uniqueAlergens, out Dictionary<string, List<string>> potentialProducts, out List<List<string>> ingrediants)
+        {
+            ingrediants = new List<List<string>>();
+            List<List<string>> alergens = new List<List<string>>();
+            uniqueAlergens = new List<string>();
             foreach (string input in inputList)
             {
                 string[] inputSlice = input.Split('(');
@@ -1543,7 +1650,7 @@ namespace AdventOfCode2020
                 }
             }
 
-            Dictionary<string, List<string>> potentialProducts = new Dictionary<string, List<string>>();
+            potentialProducts = new Dictionary<string, List<string>>();
             foreach (string alergen in uniqueAlergens)
             {
                 int ingrediantsAmount = 0;
@@ -1585,39 +1692,7 @@ namespace AdventOfCode2020
                 }
                 potentialProducts.Add(alergen, products);
             }
-
-            Dictionary<string, string> alergicProducts = new Dictionary<string, string>();
-            int loopAmount = potentialProducts.Count;
-            for (int i = 0; i < loopAmount; i++)
-            {
-                for (int j = 0; j < potentialProducts.Count; j++)
-                {
-                    if (potentialProducts.ElementAt(j).Value.Count == 1)
-                    {
-                        string newProduct = potentialProducts.ElementAt(j).Value[0];
-                        alergicProducts.Add(potentialProducts.ElementAt(j).Key, newProduct);
-
-                        for (int l = 0; l < potentialProducts.Count; l++)
-                        {
-                            potentialProducts.ElementAt(l).Value.Remove(newProduct);
-                        }
-                    }
-                }
-            }
-
-            uniqueAlergens.Sort();
-
-            string answer = "";
-            foreach (string alergent in uniqueAlergens)
-            {
-                answer += (alergicProducts[alergent] + ",");
-            }
-
-            return answer.Remove(answer.Length - 1);
         }
-
-
-        //---------------------------------------------------------------------------------------------------------------------
 
         private void ReadData(List<string> inputList, out List<string> messages, out Dictionary<int, string> rules)
         {

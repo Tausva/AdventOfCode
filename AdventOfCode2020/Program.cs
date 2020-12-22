@@ -340,6 +340,20 @@ namespace AdventOfCode2020
                         Console.WriteLine("Day 21 second task answer: [" + stringAnswer + "]");
                         break;
 
+                    case 43:
+                        inputStringList = iOManager.ReadStringList("Day22.txt");
+                        answer = logicModule.CalculateDay22Task1(inputStringList);
+
+                        Console.WriteLine("Day 22 first task answer: " + answer);
+                        break;
+
+                    case 44:
+                        inputStringList = iOManager.ReadStringList("Day22.txt");
+                        answer = logicModule.CalculateDay22Task2(inputStringList);
+
+                        Console.WriteLine("Day 22 second task answer: " + answer);
+                        break;
+
                     default:
                         Console.WriteLine("Invalid or Not yet implemented task number!");
                         break;
