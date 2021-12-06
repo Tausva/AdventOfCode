@@ -1542,6 +1542,223 @@ namespace AdventOfCode2020
             return score;
         }
 
+        public string CalculateDay23Task1(string inputList, int moveAmount)
+        {
+            LinkedList<int> cups = new LinkedList<int>();
+            int biggestCup = 0;
+            foreach (char number in inputList)
+            {
+                int cupNumber = int.Parse(number.ToString());
+                biggestCup = biggestCup < cupNumber ? cupNumber : biggestCup;
+
+                cups.AddLast(cupNumber);
+            }
+
+            LinkedListNode<int> currentCup = cups.First;
+            for (int i = 0; i < moveAmount; i++)
+            {
+                List<LinkedListNode<int>> takeAwayCups = new List<LinkedListNode<int>>();
+                LinkedListNode<int> cupToTake = currentCup.Next ?? cups.First;
+                for (int j = 0; j < 3; j++)
+                {
+                    takeAwayCups.Add(cupToTake);
+                    cupToTake = cupToTake.Next ?? cups.First;
+                    cups.Remove(cupToTake.Previous ?? cups.Last);
+                }
+
+                LinkedListNode<int> destinationNode = null;
+                int destinationCupValue = currentCup.Value;
+
+                while (destinationNode == null)
+                {
+                    destinationCupValue--;
+                    if (destinationCupValue < 0)
+                    {
+                        destinationCupValue = biggestCup;
+                    }
+                    destinationNode = cups.Find(destinationCupValue);
+                }
+
+                for (int j = 0; j < 3; j++)
+                {
+                    cups.AddAfter(destinationNode, takeAwayCups[j]);
+                    destinationNode = destinationNode.Next;
+                }
+
+                currentCup = currentCup.Next ?? cups.First;
+
+            }
+
+            LinkedListNode<int> answerNode = cups.Find(1);
+            LinkedListNode<int> nextAnswerNode = answerNode.Next ?? cups.First;
+            string answer = "";
+
+            while (nextAnswerNode != answerNode)
+            {
+                answer += nextAnswerNode.Value;
+                nextAnswerNode = nextAnswerNode.Next ?? cups.First;
+            }
+
+            return answer;
+        }
+
+        public string CalculateDay23Task2(string inputList, int moveAmount, int cupsAmount)
+        {
+            LinkedList<int> cups = new LinkedList<int>();
+            Dictionary<int, LinkedListNode<int>> nodeDictionary = new Dictionary<int, LinkedListNode<int>>();
+            int biggestCup = 0;
+
+            foreach (char number in inputList)
+            {
+                int cupNumber = int.Parse(number.ToString());
+                biggestCup = biggestCup < cupNumber ? cupNumber : biggestCup;
+
+                cups.AddLast(cupNumber);
+                nodeDictionary.Add(cupNumber, cups.Last);
+            }
+            for (int i = biggestCup + 1; i <= cupsAmount; i++)
+            {
+                cups.AddLast(i);
+                nodeDictionary.Add(i, cups.Last);
+            }
+            biggestCup = cupsAmount;
+
+            LinkedListNode<int> currentCup = cups.First;
+
+            for (int i = 0; i < 10000; i++)
+            {
+                List<LinkedListNode<int>> takeAwayCups = new List<LinkedListNode<int>>();
+                List<int> takeAwayCupsValues = new List<int>();
+                LinkedListNode<int> cupToTake = currentCup.Next ?? cups.First;
+                Console.Write(currentCup.Value + ": ");
+                for (int j = 0; j < 3; j++)
+                {
+                    Console.Write(cupToTake.Value + " ");
+                    takeAwayCups.Add(cupToTake);
+                    takeAwayCupsValues.Add(cupToTake.Value);
+                    cupToTake = cupToTake.Next ?? cups.First;
+                    cups.Remove(cupToTake.Previous ?? cups.Last);
+                }
+                Console.WriteLine();
+
+                LinkedListNode<int> destinationNode = null;
+                int destinationCupValue = currentCup.Value;
+
+                while (destinationNode == null)
+                {
+                    destinationCupValue--;
+                    if (destinationCupValue < 1)
+                    {
+                        destinationCupValue = biggestCup;
+                    }
+                    destinationNode = !takeAwayCupsValues.Contains(destinationCupValue) ? nodeDictionary[destinationCupValue] : null;
+                }
+
+                for (int j = 0; j < 3; j++)
+                {
+                    cups.AddAfter(destinationNode, takeAwayCups[j]);
+                    destinationNode = destinationNode.Next;
+                }
+
+                currentCup = currentCup.Next ?? cups.First;
+            }
+            currentCup = cups.First;
+            for (int i = 0; i < 10000; i++)
+            {
+                List<LinkedListNode<int>> takeAwayCups = new List<LinkedListNode<int>>();
+                List<int> takeAwayCupsValues = new List<int>();
+                LinkedListNode<int> cupToTake = currentCup.Next ?? cups.First;
+                Console.Write(currentCup.Value + ": ");
+                for (int j = 0; j < 3; j++)
+                {
+                    Console.Write(cupToTake.Value + " ");
+                    takeAwayCups.Add(cupToTake);
+                    takeAwayCupsValues.Add(cupToTake.Value);
+                    cupToTake = cupToTake.Next ?? cups.First;
+                    cups.Remove(cupToTake.Previous ?? cups.Last);
+                }
+                Console.WriteLine();
+
+                LinkedListNode<int> destinationNode = null;
+                int destinationCupValue = currentCup.Value;
+
+                while (destinationNode == null)
+                {
+                    destinationCupValue--;
+                    if (destinationCupValue < 1)
+                    {
+                        destinationCupValue = biggestCup;
+                    }
+                    destinationNode = !takeAwayCupsValues.Contains(destinationCupValue) ? nodeDictionary[destinationCupValue] : null;
+                }
+
+                for (int j = 0; j < 3; j++)
+                {
+                    cups.AddAfter(destinationNode, takeAwayCups[j]);
+                    destinationNode = destinationNode.Next;
+                }
+
+                currentCup = currentCup.Next ?? cups.First;
+            }
+
+            currentCup = cups.First;
+            for (int i = 0; i < 10000; i++)
+            {
+                List<LinkedListNode<int>> takeAwayCups = new List<LinkedListNode<int>>();
+                List<int> takeAwayCupsValues = new List<int>();
+                LinkedListNode<int> cupToTake = currentCup.Next ?? cups.First;
+                Console.Write(currentCup.Value + ": ");
+                for (int j = 0; j < 3; j++)
+                {
+                    Console.Write(cupToTake.Value + " ");
+                    takeAwayCups.Add(cupToTake);
+                    takeAwayCupsValues.Add(cupToTake.Value);
+                    cupToTake = cupToTake.Next ?? cups.First;
+                    cups.Remove(cupToTake.Previous ?? cups.Last);
+                }
+                Console.WriteLine();
+
+                LinkedListNode<int> destinationNode = null;
+                int destinationCupValue = currentCup.Value;
+
+                while (destinationNode == null)
+                {
+                    destinationCupValue--;
+                    if (destinationCupValue < 1)
+                    {
+                        destinationCupValue = biggestCup;
+                    }
+                    destinationNode = !takeAwayCupsValues.Contains(destinationCupValue) ? nodeDictionary[destinationCupValue] : null;
+                }
+
+                for (int j = 0; j < 3; j++)
+                {
+                    cups.AddAfter(destinationNode, takeAwayCups[j]);
+                    destinationNode = destinationNode.Next;
+                }
+
+                currentCup = currentCup.Next ?? cups.First;
+            }
+
+            LinkedListNode<int> node = cups.First;
+            for (int i = 0; i < 10000; i++)
+            {
+                Console.WriteLine(node.Value);
+                node = node.Next;
+            }
+
+            int kjhljk = 0;
+            for (int i = 0; i < moveAmount; i++)
+            {
+
+            }
+
+            LinkedListNode<int> answerNode = cups.Find(1).Next ?? cups.First;
+            LinkedListNode<int> nextAnswerNode = answerNode.Next ?? cups.First;
+
+            return (answerNode.Value * answerNode.Value).ToString();
+        }
+
         //---------------------------------------------------------------------------------------------------------------------
 
         private Queue<int> PlayCrabRecursionMatch(Queue<int> player1Hand, Queue<int> player2Hand, out int winner)

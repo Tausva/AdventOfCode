@@ -354,6 +354,18 @@ namespace AdventOfCode2020
                         Console.WriteLine("Day 22 second task answer: " + answer);
                         break;
 
+                    case 45:
+                        stringAnswer = logicModule.CalculateDay23Task1("364297581", 100);
+
+                        Console.WriteLine("Day 23 first task answer: " + stringAnswer);
+                        break;
+
+                    case 46:
+                        stringAnswer = logicModule.CalculateDay23Task2("364297581", 10000000, 1000000);
+
+                        Console.WriteLine("Day 23 second task answer: " + stringAnswer);
+                        break;
+
                     default:
                         Console.WriteLine("Invalid or Not yet implemented task number!");
                         break;

@@ -69,5 +69,10 @@ namespace AdventOfCode2020.Structures
         //{
 
         //}
+
+        public void RotateTile()
+        {
+            char[][] tile;
+        }
     }
 }
