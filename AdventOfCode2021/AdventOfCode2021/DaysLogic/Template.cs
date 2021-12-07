@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AdventOfCode2021.DaysLogic
 {
@@ -78,6 +79,24 @@ namespace AdventOfCode2021.DaysLogic
                 }
             }
             return newArray;
+        }
+
+        protected int GetMedian(List<int> numbers)
+        {
+            int numberCount = numbers.Count();
+            int halfIndex = numbers.Count() / 2;
+            var sortedNumbers = numbers.OrderBy(n => n);
+            int median;
+            if ((numberCount % 2) == 0)
+            {
+                median = ((sortedNumbers.ElementAt(halfIndex) +
+                    sortedNumbers.ElementAt((halfIndex - 1))) / 2);
+            }
+            else
+            {
+                median = sortedNumbers.ElementAt(halfIndex);
+            }
+            return median;
         }
     }
 }
