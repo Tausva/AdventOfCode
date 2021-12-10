@@ -12,10 +12,10 @@ namespace AdventOfCode2021
             List<string> input;
             string answer;
 
-            Template<string> currentDay = new Day08();
+            Template<string> currentDay = new Day09();
 
             //input = IOManager.ReadStringList("Test.txt");
-            input = IOManager.ReadStringList("Day08.txt");
+            input = IOManager.ReadStringList("Day09.txt");
             //answer = currentDay.Part1(input);
             answer = currentDay.Part2(input);
 
